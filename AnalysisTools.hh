@@ -564,7 +564,8 @@ auto EtaDetermination = [](Hadron const &H) {
 // ------------------------------------------------------------------------------------------------------------
 
 // partial pressure calculator (for dimension = 3) at mu = 0
-// kCut index is not included in the final summation
+// (kCut + 1) index is not included in the final summation
+// if difference between k-th and (k+1)-th is less than 1e-10 the loop will stop regardless of kCut
 auto iPartialPressure = [](double const &temperature, Hadron const &H, int const &kCut) {
     // determine hadron type (boson / fermion)
     int eta = EtaDetermination(H);
@@ -578,10 +579,17 @@ auto iPartialPressure = [](double const &temperature, Hadron const &H, int const
 
     // summation of Macdonald function
     double sumBessel = 0.;
-    for (int k = 1; k < kCut; k++)
+    for (int k = 1; k <= kCut; k++)
     {
+        double tmp = sumBessel;
         double argumentBessel = k * iHadronMass / temperature;
         sumBessel += std::pow(-eta, k + 1) / sq(k) * gsl_sf_bessel_Kn(2, argumentBessel);
+        // check difference
+        if (std::abs(sumBessel - tmp) < 1E-10)
+        {
+            //std::cout << k << " " << H.getName() << std::endl;
+            break;
+        }
     }
 
     // return partial pressure
@@ -591,7 +599,8 @@ auto iPartialPressure = [](double const &temperature, Hadron const &H, int const
 // ------------------------------------------------------------------------------------------------------------
 
 // partial energy density calculator (for dimension = 3) at mu = 0
-// kCut index is not included in the final summation
+// (kCut + 1) index is not included in the final summation
+// if difference between k-th and (k+1)-th is less than 1e-10 the loop will stop regardless of kCut
 auto iPartialEnergyDensity = [](double const &temperature, Hadron const &H, int const &kCut) {
     // determine hadron type (boson / fermion)
     int eta = EtaDetermination(H);
@@ -605,10 +614,17 @@ auto iPartialEnergyDensity = [](double const &temperature, Hadron const &H, int 
 
     // summation of Macdonald function
     double sumBessel = 0.;
-    for (int k = 1; k < kCut; k++)
+    for (int k = 1; k <= kCut; k++)
     {
+        double tmp = sumBessel;
         double argumentBessel = k * iHadronMass / temperature;
         sumBessel += std::pow(-eta, k + 1) / sq(k) * (3 * gsl_sf_bessel_Kn(2, argumentBessel) + argumentBessel * gsl_sf_bessel_Kn(1, argumentBessel));
+        // check difference
+        if (std::abs(sumBessel - tmp) < 1E-10)
+        {
+            //std::cout << k << " " << H.getName() << std::endl;
+            break;
+        }
     }
 
     // return partial energy density
@@ -626,7 +642,8 @@ auto iPartialTraceAnomaly = [](double const &partialPressure, double const &part
 // ------------------------------------------------------------------------------------------------------------
 
 // partial (even) suscebtibility calculator (for dimension = 3) at mu = 0 (pressure and chemical potentials are reduced)
-// kCut index is not included in the final summation
+// (kCut + 1) index is not included in the final summation
+// if difference between k-th and (k+1)-th is less than 1e-10 the loop will stop regardless of kCut
 auto iPartialSusceptibility = [](int const &orderB, int const &orderS, int const &orderQ, double const &temperature, Hadron const &H, int const &kCut) {
     // check if orders are even
     if ((orderB + orderS + orderQ) % 2 != 0)
@@ -653,10 +670,17 @@ auto iPartialSusceptibility = [](int const &orderB, int const &orderS, int const
 
     // summation of Macdonald function
     double sumBessel = 0.;
-    for (int k = 1; k < kCut; k++)
+    for (int k = 1; k <= kCut; k++)
     {
+        double tmp = sumBessel;
         double argumentBessel = k * iHadronMass / temperature;
         sumBessel += std::pow(-eta, k + 1) / sq(k) * std::pow(k * iBaryonNumber, orderB) * std::pow(k * iStrangeness, orderS) * std::pow(k * iElectricCharge, orderQ) * gsl_sf_bessel_Kn(2, argumentBessel);
+        // check difference
+        if (std::abs(sumBessel - tmp) < 1E-10)
+        {
+            //std::cout << k << " " << H.getName() << std::endl;
+            break;
+        }
     }
 
     // return partial susceptibility
