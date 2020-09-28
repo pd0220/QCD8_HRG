@@ -67,11 +67,11 @@ int main(int, char **)
     std::cout << "NAME p_Boltzmann/p_Bessel(140MeV) p_Boltzmann/p_Bessel(150 MeV) eps_Boltzmann/eps_Bessel(140MeV) eps_Boltzmann/eps_Bessel(140MeV)" << std::endl;
     for (int i = 0; i < static_cast<int>(hadronContainer.size()); i++)
     {
-        std::cout << hadronContainer[i].getName() << " "
-                  << pressures_T140_Boltzmann[i] / pressures_T140_Bessel[i] << " "
-                  << pressures_T150_Boltzmann[i] / pressures_T150_Bessel[i] << " "
-                  << energyDensity_T140_Boltzmann[i] / energyDensity_T140_Bessel[i] << " "
-                  << energyDensity_T150_Boltzmann[i] / energyDensity_T150_Bessel[i] << " "
+        std::cout << hadronContainer[i].getName() << " " << std::fixed
+                  << std::setprecision(6) << pressures_T140_Boltzmann[i] / pressures_T140_Bessel[i] << " "
+                  << std::setprecision(6) << pressures_T150_Boltzmann[i] / pressures_T150_Bessel[i] << " "
+                  << std::setprecision(6) << energyDensity_T140_Boltzmann[i] / energyDensity_T140_Bessel[i] << " "
+                  << std::setprecision(6) << energyDensity_T150_Boltzmann[i] / energyDensity_T150_Bessel[i] << " "
                   << std::endl;
     }
 }

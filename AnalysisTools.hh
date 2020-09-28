@@ -6,6 +6,7 @@
 #include <gsl/gsl_cdf.h>
 #include <gsl/gsl_sf_bessel.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <vector>
