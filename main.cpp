@@ -62,7 +62,7 @@ int main(int, char **)
         energyDensity_T150_Boltzmann.push_back(iPartialEnergyDensity(T_150MeV, hadronContainer[i], kCut_Boltzmann));
         energyDensity_T150_Bessel.push_back(iPartialEnergyDensity(T_150MeV, hadronContainer[i], kCut_Bessel));
     }
-
+    /*
     // write to screen
     std::cout << "NAME p_Boltzmann/p_Bessel(140MeV) p_Boltzmann/p_Bessel(150 MeV) eps_Boltzmann/eps_Bessel(140MeV) eps_Boltzmann/eps_Bessel(140MeV)" << std::endl;
     for (int i = 0; i < static_cast<int>(hadronContainer.size()); i++)
@@ -73,5 +73,14 @@ int main(int, char **)
                   << std::setprecision(6) << energyDensity_T140_Boltzmann[i] / energyDensity_T140_Bessel[i] << " "
                   << std::setprecision(6) << energyDensity_T150_Boltzmann[i] / energyDensity_T150_Bessel[i] << " "
                   << std::endl;
+    }
+    */
+    // code testing
+    // Ts
+    std::vector<double> testTs{110., 120., 130., 140., 150., 160., 170., 180., 190., 200., 210., 220., 230., 240., 250.};
+    // pressure test
+    for (int i = 0; i < static_cast<int>(testTs.size()); i++)
+    {
+        std::cout << testTs[i] << " " << PressureHRG(hadronList, testTs[i] / 1000, 1000) / std::pow(testTs[i] / 1000, 4) << std::endl;
     }
 }
