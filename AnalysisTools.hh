@@ -588,7 +588,6 @@ auto iPartialPressure = [](double const &temperature, Hadron const &H, int const
         // check difference
         if (std::abs(sumBessel - tmp) < 1E-10)
         {
-            //std::cout << k << " " << H.getName() << std::endl;
             break;
         }
     }
