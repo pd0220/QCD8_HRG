@@ -25,6 +25,8 @@ int main(int, char **)
 
     // vector container for different {B, S} sector contributions at different temperatures
     std::vector<Eigen::MatrixXd> SectorMatrixTotal{Ts.size(), Eigen::MatrixXd::Zero(4, 5)};
+    // vector container for baryon number sector contributions (B = 1, 2)
+    std::vector<std::vector<double>> BaryonVectorTotal{Ts.size(), std::vector<double>{0., 0.}};
     // hadron matrix for {B, S} sector contributions at fixed temperature
     Eigen::MatrixXd SectorMatrixTemperature;
     // loop for temperatures
@@ -50,7 +52,25 @@ int main(int, char **)
             int eta = EtaDetermination(hadron);
             int spinDeg = hadron.getSpinDegeneracy();
 
-            // loop for k index in partial pressure
+            // prefactor of Macdonald function
+            double prefactor = spinDeg * sq(T * mass / M_PI) / 2;
+
+            // loop for k index in partial pressure (baryion number only)
+            for (int k = 1; k < kCut; k++)
+            {
+                // determine what sector to update
+                int sectorB = k * baryionNumber;
+                // only consider B = 1, 2
+                if (sectorB > 2 || sectorB < 1)
+                    break;
+
+                // argument of Macdonald function
+                double argument = k * mass / T;
+                // calculate kth contribution and update matrix element
+                BaryonVectorTotal[TIndex][sectorB - 1] += prefactor * std::pow(-eta, k + 1) / sq(k) * gsl_sf_bessel_Kn(2, argument);
+            }
+
+            // loop for k index in partial pressure (baryon strangeness together)
             for (int k = 1; k < kCut; k++)
             {
                 // determine what sector to update
@@ -80,6 +100,7 @@ int main(int, char **)
     // structure
     //
     // T, P_0-1, P_00, P_01, P_02, P_03, P_10, P_11, P_12, P_13, P_20, P_21, P_22, P_23, P_30, P_31, P_32, P_33
+    /*
     std::ofstream file;
     file.open("HRGSectors.txt", std::ofstream::app);
     for (int iData = 0; iData < static_cast<int>(SectorMatrixTotal.size()); iData++)
@@ -95,6 +116,19 @@ int main(int, char **)
         }
         file << std::endl;
     }
+    file.close();
+*/
+    // write baryon vector to file
+    // structure
+    //
+    // T, P_1, P_2
+    std::ofstream fileBaryon;
+    fileBaryon.open("BaryonSectors.txt", std::ofstream::app);
+    for (int iData = 0; iData < static_cast<int>(BaryonVectorTotal.size()); iData++)
+    {
+        fileBaryon << Ts[iData] << " " << BaryonVectorTotal[iData][0] << " " << BaryonVectorTotal[iData][1] << std::endl;
+    }
+    fileBaryon.close();
 }
 
 /*
