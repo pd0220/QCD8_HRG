@@ -19,23 +19,21 @@ int main(int, char **)
 
     // temperature values (MeV)
     std::vector<double> Ts{110.0, 115.0, 120.0, 125.0, 130.0, 135.0, 140.0, 145.0, 150.0, 155.0, 160.0, 165.0, 170.0, 175.0, 180.0, 185.0,
-                           190.0, 195.0, 200.0, 205.0, 210.0, 215.0, 220.0, 225.0, 230.0, 235.0, 240.0, 245.0, 250.0, 260.0, 270.0, 280.0,
-                           290.0, 300.0, 310.0, 320.0, 330.0, 340.0, 350.0, 360.0, 370.0, 380.0, 390.0, 400.0, 410.0, 420.0, 430.0, 440.0,
-                           445.0, 450.0, 455.0, 460.0, 465.0, 470.0, 475.0, 480.0, 485.0, 490.0, 495.0, 500.0, 505.0, 510.0};
+                           190.0, 195.0, 200.0};
 
     // vector container for different {B, S} sector contributions at different temperatures
-    std::vector<Eigen::MatrixXd> SectorMatrixTotal{Ts.size(), Eigen::MatrixXd::Zero(4, 5)};
+    //std::vector<Eigen::MatrixXd> SectorMatrixTotal{Ts.size(), Eigen::MatrixXd::Zero(4, 5)};
     // vector container for baryon number sector contributions (B = 1, 2)
     std::vector<std::vector<double>> BaryonVectorTotal{Ts.size(), std::vector<double>{0., 0.}};
     // hadron matrix for {B, S} sector contributions at fixed temperature
-    Eigen::MatrixXd SectorMatrixTemperature;
+    //Eigen::MatrixXd SectorMatrixTemperature;
     // loop for temperatures
     for (int TIndex = 0; TIndex < static_cast<int>(Ts.size()); TIndex++)
     {
         // temperature [MeV --> GeV]
         double T = Ts[TIndex] / 1000.;
         // set matrix elements to zero
-        SectorMatrixTemperature = Eigen::MatrixXd::Zero(4, 5);
+        //SectorMatrixTemperature = Eigen::MatrixXd::Zero(4, 5);
         // HRG partial pressure rewritten to acces kth contribution
         // partial pressure at mu = 0
         // loop for hadrons
@@ -45,7 +43,7 @@ int main(int, char **)
             Hadron hadron = hadronList[hadronIndex];
             // baryon number and strangeness
             int baryionNumber = hadron.getB();
-            int strangeness = -hadron.getS();
+            //int strangeness = -hadron.getS();
 
             // particle data: mass, eta (boson / fermion), spin degeneracy
             double mass = hadron.getMass();
@@ -61,7 +59,7 @@ int main(int, char **)
                 // determine what sector to update
                 int sectorB = k * baryionNumber;
                 // only consider B = 1, 2
-                if (sectorB > 2 || sectorB < 1)
+                if (sectorB != 1 && sectorB != 2)
                     break;
 
                 // argument of Macdonald function
@@ -69,7 +67,7 @@ int main(int, char **)
                 // calculate kth contribution and update matrix element
                 BaryonVectorTotal[TIndex][sectorB - 1] += prefactor * std::pow(-eta, k + 1) / sq(k) * gsl_sf_bessel_Kn(2, argument);
             }
-
+            /*
             // loop for k index in partial pressure (baryon strangeness together)
             for (int k = 1; k < kCut; k++)
             {
@@ -90,10 +88,11 @@ int main(int, char **)
                 // calculate kth contribution and update matrix element
                 SectorMatrixTemperature(sectorB, sectorS) += prefactor * std::pow(-eta, k + 1) / sq(k) * gsl_sf_bessel_Kn(2, argument);
             }
+            */
         }
 
         // add matrix to matrix container
-        SectorMatrixTotal[TIndex] = SectorMatrixTemperature;
+        //SectorMatrixTotal[TIndex] = SectorMatrixTemperature;
     }
 
     // write matrix to file
@@ -122,13 +121,12 @@ int main(int, char **)
     // structure
     //
     // T, P_1, P_2
-    std::ofstream fileBaryon;
-    fileBaryon.open("BaryonSectors.txt", std::ofstream::app);
     for (int iData = 0; iData < static_cast<int>(BaryonVectorTotal.size()); iData++)
     {
-        fileBaryon << Ts[iData] << " " << BaryonVectorTotal[iData][0] << " " << BaryonVectorTotal[iData][1] << std::endl;
+        std::cout << Ts[iData] << " " 
+                  << 2 * (BaryonVectorTotal[iData][0] / (sq(Ts[iData] / 1000) * sq(Ts[iData] / 1000))) << " " 
+                  << 2 * (BaryonVectorTotal[iData][1] / (sq(Ts[iData] / 1000) * sq(Ts[iData] / 1000))) << std::endl;
     }
-    fileBaryon.close();
 }
 
 /*
